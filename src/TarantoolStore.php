@@ -2,6 +2,7 @@
 
 namespace Tarantool\SymfonyLock;
 
+use InvalidArgumentException;
 use Symfony\Component\Lock\Exception\InvalidTtlException;
 use Symfony\Component\Lock\Exception\LockConflictedException;
 use Symfony\Component\Lock\Key;
