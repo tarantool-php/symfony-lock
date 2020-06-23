@@ -8,7 +8,7 @@
 
 # About
 
-The `TarantoolStore` implements symfony `PersistingStoreInterface` and persist locks using Tarantool Database.
+The `TarantoolStore` implements symfony `PersistingStoreInterface` using Tarantool Database.
 
 # Installation
 
@@ -61,21 +61,21 @@ if ($lock->acquire()) {
 
 # Expiration helper
 
-When key is expired it will be removed on acquiring new lock with same name. If your key names are not unique, you can use expiration daemon to cleanup your database.
+When key is expired it will be removed on acquiring new lock with same name. If your key names are not unique, you can use php cleaner to cleanup your database. The best way to cleanup data is start a fiber inside tarantool. For more details see [expirationd module documentation](https://github.com/tarantool/expirationd)
 
 ```php
 use Tarantool\Client\Client;
-use Tarantool\SymfonyLock\ExpirationDaemon;
+use Tarantool\SymfonyLock\Cleaner;
 
 $client = Client::fromDefaults();
-$expiration = new ExpirationDaemon($client);
+$cleaner = new Cleaner($client);
 
 // cleanup keys that are expired
-$expiration->process();
+$cleaner->process();
 
-// by default expiration daemon will clean upto 100 items
+// by default cleaner will process upto 100 items
 // you can override it via optional configuration
-$expiration = new ExpirationDaemon($client, [
+$cleaner = new Cleaner($client, [
     'limit' => 10,
 ]);
 
@@ -86,12 +86,12 @@ $expiration = new ExpirationDaemon($client, [
 
 ```php
 use Tarantool\Client\Client;
-use Tarantool\SymfonyLock\ExpirationDaemon;
+use Tarantool\SymfonyLock\Cleaner;
 use Tarantool\SymfonyLock\SchemaManager;
 use Tarantool\SymfonyLock\TarantoolStore;
 
 $client = Client::fromDefaults();
-$expiration = new ExpirationDaemon($client, [
+$cleaner = new Cleaner($client, [
     'space' => 'lock',
     'limit' => '100',
 ]);

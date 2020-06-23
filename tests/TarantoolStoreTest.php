@@ -8,7 +8,7 @@ use Symfony\Component\Lock\Key;
 use Symfony\Component\Lock\PersistingStoreInterface;
 use Tarantool\Client\Client;
 use Tarantool\Client\Schema\Criteria;
-use Tarantool\SymfonyLock\ExpirationDaemon;
+use Tarantool\SymfonyLock\Cleaner;
 use Tarantool\SymfonyLock\SchemaManager;
 use Tarantool\SymfonyLock\TarantoolStore;
 
@@ -153,22 +153,22 @@ class TarantoolStoreTest extends TestCase
         $this->assertNotSame($data[0][2], $updated[0][2], "expiration was updated");
     }
 
-    public function testExpirationDaemon()
+    public function testCleaner()
     {
         $space = $this->client->getSpace('lock');
         $space->insert([ 'key1', 'token', microtime(true) ]);
         $space->insert([ 'key2', 'token', microtime(true) ]);
         $space->insert([ 'key3', 'token', microtime(true) ]);
 
-        $expiration = new ExpirationDaemon($this->client);
-        $this->assertSame(3, $expiration->process());
+        $cleaner = new Cleaner($this->client);
+        $this->assertSame(3, $cleaner->process());
         $this->assertCount(0, $space->select(Criteria::key([])));
     }
 
-    public function testExpirationDaemonLimit()
+    public function testCleanerLimit()
     {
         $space = $this->client->getSpace('lock');
-        $expiration = new ExpirationDaemon($this->client, [
+        $cleaner = new Cleaner($this->client, [
             'limit' => 1,
         ]);
 
@@ -178,14 +178,14 @@ class TarantoolStoreTest extends TestCase
 
         $this->assertCount(3, $space->select(Criteria::key([])));
 
-        $this->assertSame(1, $expiration->process());
+        $this->assertSame(1, $cleaner->process());
         $this->assertCount(2, $space->select(Criteria::key([])));
 
-        $this->assertSame(1, $expiration->process());
+        $this->assertSame(1, $cleaner->process());
         $this->assertCount(1, $space->select(Criteria::key([])));
 
         // last record is not expired
-        $this->assertSame(0, $expiration->process());
+        $this->assertSame(0, $cleaner->process());
         $this->assertCount(1, $space->select(Criteria::key([])));
     }
 }

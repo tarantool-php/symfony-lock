@@ -5,7 +5,7 @@ namespace Tarantool\SymfonyLock;
 use Tarantool\Client\Client;
 use InvalidArgumentException;
 
-class ExpirationDaemon
+class Cleaner
 {
     use OptionalConstructor;
 
