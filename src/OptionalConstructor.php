@@ -20,4 +20,6 @@ trait OptionalConstructor
 
         $this->validateOptions();
     }
+
+    abstract protected function validateOptions();
 }
