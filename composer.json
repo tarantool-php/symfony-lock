@@ -1,7 +1,7 @@
 {
     "name": "tarantool/symfony-lock",
     "description": "Symfony lock Tarantool store",
-    "keywords": ["tarantool", "client", "pure", "nosql", "mapper"],
+    "keywords": ["tarantool", "client", "pure", "nosql", "lock"],
     "type": "library",
     "license": "MIT",
     "require": {
