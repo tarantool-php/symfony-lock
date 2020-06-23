@@ -1,0 +1,35 @@
+language: php
+
+sudo: required
+
+php:
+  - 7.4
+  - nightly
+  - master
+
+env:
+  - TARANTOOL_VERSION=1.10
+  - TARANTOOL_VERSION=2.0
+  - TARANTOOL_VERSION=2.1
+  - TARANTOOL_VERSION=2.2
+
+matrix:
+  fast_finish: true
+  allow_failures:
+    - php: nightly
+    - php: master
+
+services:
+  - docker
+
+before_script:
+  - docker run -d -p 3301:3301 progaudi/tarantool:$TARANTOOL_VERSION
+  - composer install --no-interaction --prefer-source --optimize-autoloader
+
+script: vendor/bin/phpunit
+
+after_script:
+  - if [[ -f coverage.clover ]]; then
+      curl -sSOL https://scrutinizer-ci.com/ocular.phar &&
+      php ocular.phar code-coverage:upload --format=php-clover coverage.clover;
+    fi
