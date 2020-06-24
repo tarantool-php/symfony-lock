@@ -9,6 +9,7 @@ use Symfony\Component\Lock\Exception\LockConflictedException;
 use Symfony\Component\Lock\Key;
 use Symfony\Component\Lock\PersistingStoreInterface;
 use Tarantool\Client\Client;
+use Tarantool\Client\Exception\RequestFailed;
 use Tarantool\Client\Schema\Criteria;
 use Tarantool\SymfonyLock\Cleaner;
 use Tarantool\SymfonyLock\SchemaManager;
@@ -237,5 +238,41 @@ class TarantoolStoreTest extends TestCase
         $this->expectExceptionMessage("Space should be defined");
 
         new TarantoolStore(Client::fromDefaults(), [ 'space' => '' ]);
+    }
+
+    public function testSuccessSchemaCreation()
+    {
+        $host = getenv('TARANTOOL_CONNECTION_HOST');
+        $port = getenv('TARANTOOL_CONNECTION_PORT');
+
+        $client = Client::fromDsn("tcp://$host:$port");
+        $client->evaluate('box.session.su("admin")');
+
+        $schema = new SchemaManager($client);
+        $schema->tearDown();
+
+        $store = new TarantoolStore($client, [ 'createSchema' => true ]);
+        $store->save(new Key(uniqid(__METHOD__, true)));
+
+        $tuples = $this->client->getSpace('lock')->select(Criteria::key([]));
+        $this->assertCount(1, $tuples);
+    }
+
+    public function testDefaultSchemaCreationIsDisabled()
+    {
+        $host = getenv('TARANTOOL_CONNECTION_HOST');
+        $port = getenv('TARANTOOL_CONNECTION_PORT');
+
+        $client = Client::fromDsn("tcp://$host:$port");
+        $client->evaluate('box.session.su("admin")');
+
+        $schema = new SchemaManager($client);
+        $schema->tearDown();
+
+        $this->expectException(RequestFailed::class);
+        $this->expectExceptionMessage("Space 'lock' does not exist");
+
+        $store = new TarantoolStore($client);
+        $store->save(new Key(uniqid(__METHOD__, true)));
     }
 }

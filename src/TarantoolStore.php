@@ -20,6 +20,11 @@ class TarantoolStore implements PersistingStoreInterface
     use ExpiringStoreTrait;
 
     /**
+     * Initialize database schema if not exists
+     */
+    protected bool $createSchema = false;
+
+    /**
      * Expiration delay of locks in seconds
      */
     protected int $initialTtl = 300;
@@ -70,8 +75,7 @@ class TarantoolStore implements PersistingStoreInterface
      */
     public function exists(Key $key)
     {
-        $data = $this->client
-            ->getSpace($this->space)
+        $data = $this->getSpace()
             ->select(Criteria::key([ (string) $key ]));
 
         if (count($data)) {
@@ -114,8 +118,7 @@ class TarantoolStore implements PersistingStoreInterface
             $this->getSpace()->insert($tuple);
             $this->checkNotExpired($key);
         } catch (RequestFailed $e) {
-            $data = $this->client
-                ->getSpace($this->space)
+            $data = $this->getSpace()
                 ->select(Criteria::key([ (string) $key ]));
 
             if (count($data)) {
@@ -153,6 +156,15 @@ class TarantoolStore implements PersistingStoreInterface
 
     protected function getSpace(): Space
     {
-        return $this->client->getSpace($this->space);
+        try {
+            return $this->client->getSpace($this->space);
+        } catch (RequestFailed $e) {
+            if ($this->createSchema) {
+                $schema = new SchemaManager($this->client, [ 'space' => $this->space ]);
+                $schema->setup();
+                return $this->client->getSpace($this->space);
+            }
+            throw $e;
+        }
     }
 }

@@ -34,6 +34,12 @@ $schema->setup();
 // later if you want to cleanup lock space, use
 $schema->tearDown();
 
+// in addition you can configure TarantoolStore to create schema on demand
+// pay attention, this option is false by default
+$store = new TarantoolStore($client, [
+    'createSchema' => true,
+]);
+
 ```
 
 # Using Store
@@ -104,5 +110,6 @@ $schema = new SchemaManager($client, [
 $store = new TarantoolStore($client, [
     'space' => 'lock',
     'initialTtl' => 300,
+    'createSchema' => false,
 ]);
 ```
