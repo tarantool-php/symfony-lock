@@ -75,13 +75,19 @@ class TarantoolStore implements PersistingStoreInterface
      */
     public function exists(Key $key)
     {
-        $data = $this->getSpace()
-            ->select(Criteria::key([ (string) $key ]));
+        try {
+            $data = $this->client
+                ->getSpace($this->space)
+                ->select(Criteria::key([ (string) $key ]));
 
-        if (count($data)) {
-            [$tuple] = $data;
-            return $tuple[1] == $this->getUniqueToken($key)
-                && $tuple[2] >= microtime(true);
+            if (count($data)) {
+                [$tuple] = $data;
+                return $tuple[1] == $this->getUniqueToken($key)
+                    && $tuple[2] >= microtime(true);
+            }
+        } catch (RequestFailed $e) {
+            // query failure means there is no valid space
+            // it means that key is not exists in store
         }
         return false;
     }

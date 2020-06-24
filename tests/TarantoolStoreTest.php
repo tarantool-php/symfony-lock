@@ -301,4 +301,16 @@ class TarantoolStoreTest extends TestCase
         $this->assertFalse($store->exists($key1));
         $this->assertTrue($store->exists($key2));
     }
+
+    public function testExistsOnDroppedSpace()
+    {
+        $key = new Key(uniqid(__METHOD__, true));
+
+        $store = $this->getStore();
+        $store->save($key);
+
+        $this->schema->tearDown();
+
+        $this->assertFalse($store->exists($key));
+    }
 }
