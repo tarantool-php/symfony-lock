@@ -11,6 +11,7 @@ use Symfony\Component\Lock\PersistingStoreInterface;
 use Tarantool\Client\Client;
 use Tarantool\Client\Exception\RequestFailed;
 use Tarantool\Client\Schema\Criteria;
+use Tarantool\Client\Schema\Operations;
 use Tarantool\SymfonyLock\Cleaner;
 use Tarantool\SymfonyLock\SchemaManager;
 use Tarantool\SymfonyLock\TarantoolStore;
@@ -274,5 +275,30 @@ class TarantoolStoreTest extends TestCase
 
         $store = new TarantoolStore($client);
         $store->save(new Key(uniqid(__METHOD__, true)));
+    }
+
+    public function testExpiredKeyOverwrite()
+    {
+        $resource = uniqid(__METHOD__, true);
+        $key1 = new Key($resource);
+        $key2 = new Key($resource);
+
+        $store = $this->getStore();
+
+        $store->save($key1);
+        $this->assertTrue($store->exists($key1));
+        $this->assertFalse($store->exists($key2));
+
+        $rows = $this->client->getSpace('lock')->select(Criteria::key([]));
+        $this->assertCount(1, $rows);
+        $this->client->getSpace('lock')->update([$rows[0][0]], Operations::set(2, microtime(true)));
+
+        $this->assertFalse($store->exists($key1));
+        $this->assertFalse($store->exists($key2));
+
+        $store->save($key2);
+
+        $this->assertFalse($store->exists($key1));
+        $this->assertTrue($store->exists($key2));
     }
 }
