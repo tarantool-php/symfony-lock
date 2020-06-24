@@ -33,7 +33,7 @@ class TarantoolStore implements PersistingStoreInterface
     {
         if ($this->initialTtl <= 0) {
             $message = sprintf(
-                'initialTtl expects a strictly positive TTL. Got %d.',
+                'InitialTtl expects a strictly positive TTL. Got %d.',
                 $this->initialTtl
             );
             throw new InvalidTtlException($message);

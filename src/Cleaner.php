@@ -23,7 +23,7 @@ class Cleaner
     {
         if ($this->limit <= 0) {
             $message = sprintf(
-                'limit expects a strictly positive TTL. Got %d.',
+                'Limit expects a strictly positive. Got %d.',
                 $this->limit
             );
             throw new InvalidArgumentException($message);

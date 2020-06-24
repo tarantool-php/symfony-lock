@@ -2,7 +2,9 @@
 
 namespace Tarantool\SymfonyLock\Tests;
 
+use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Lock\Exception\InvalidTtlException;
 use Symfony\Component\Lock\Exception\LockConflictedException;
 use Symfony\Component\Lock\Key;
 use Symfony\Component\Lock\PersistingStoreInterface;
@@ -187,5 +189,53 @@ class TarantoolStoreTest extends TestCase
         // last record is not expired
         $this->assertSame(0, $cleaner->process());
         $this->assertCount(1, $space->select(Criteria::key([])));
+    }
+    
+    public function testSchemaInvalidEngine()
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage("Engine should be defined");
+
+        new SchemaManager(Client::fromDefaults(), [ 'engine' => '' ]);
+    }
+
+    public function testSchemaInvalidSpaceName()
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage("Space should be defined");
+
+        new SchemaManager(Client::fromDefaults(), [ 'space' => '' ]);
+    }
+
+    public function testCleanerInvalidLimit()
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage("Limit expects a strictly positive. Got 0");
+
+        new Cleaner(Client::fromDefaults(), [ 'limit' => 0 ]);
+    }
+
+    public function testCleanerInvalidSpaceName()
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage("Space should be defined");
+
+        new Cleaner(Client::fromDefaults(), [ 'space' => '' ]);
+    }
+
+    public function testStoreInvalidTtl()
+    {
+        $this->expectException(InvalidTtlException::class);
+        $this->expectExceptionMessage("InitialTtl expects a strictly positive TTL. Got 0.");
+
+        new TarantoolStore(Client::fromDefaults(), [ 'initialTtl' => 0 ]);
+    }
+
+    public function testStoreInvalidSpaceName()
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage("Space should be defined");
+
+        new TarantoolStore(Client::fromDefaults(), [ 'space' => '' ]);
     }
 }
