@@ -27,7 +27,7 @@ class TarantoolStoreTest extends TestCase
         return $this->store;
     }
 
-    public function setup()
+    public function setUp(): void
     {
         $host = getenv('TARANTOOL_CONNECTION_HOST');
         $port = getenv('TARANTOOL_CONNECTION_PORT');
@@ -41,7 +41,7 @@ class TarantoolStoreTest extends TestCase
         $this->store = new TarantoolStore($this->client);
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
         $this->schema->tearDown();
     }
