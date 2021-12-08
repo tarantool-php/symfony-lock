@@ -73,7 +73,7 @@ class TarantoolStore implements PersistingStoreInterface
     /**
      * {@inheritdoc}
      */
-    public function exists(Key $key)
+    public function exists(Key $key): bool
     {
         try {
             $data = $this->client
@@ -141,7 +141,7 @@ class TarantoolStore implements PersistingStoreInterface
                 }
             }
 
-            throw new LockConflictedException(null, null, $e);
+            throw new LockConflictedException($e->getMessage(), $e->getCode(), $e);
         }
     }
 
