@@ -52,7 +52,7 @@ class TarantoolStore implements PersistingStoreInterface
     /**
      * {@inheritdoc}
      */
-    public function delete(Key $key, ?string $token = null)
+    public function delete(Key $key, ?string $token = null): void
     {
         $arguments = [
             (string) $key,
@@ -95,7 +95,7 @@ class TarantoolStore implements PersistingStoreInterface
     /**
      * {@inheritdoc}
      */
-    public function putOffExpiration(Key $key, float $ttl)
+    public function putOffExpiration(Key $key, float $ttl): void
     {
         if ($this->exists($key)) {
             $key->resetLifetime();
@@ -111,7 +111,7 @@ class TarantoolStore implements PersistingStoreInterface
     /**
      * {@inheritdoc}
      */
-    public function save(Key $key)
+    public function save(Key $key): void
     {
         $key->reduceLifetime($this->initialTtl);
 
