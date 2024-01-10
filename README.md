@@ -1,6 +1,5 @@
 # Tarantool symfony-lock
 [![License](https://poser.pugx.org/tarantool/symfony-lock/license.png)](https://packagist.org/packages/tarantool/symfony-lock)
-[![Build Status](https://travis-ci.org/tarantool-php/symfony-lock.svg?branch=master)](https://travis-ci.org/tarantool-php/symfony-lock)
 [![Latest Version](https://img.shields.io/github/release/tarantool-php/symfony-lock.svg?style=flat-square)](https://github.com/tarantool-php/symfony-lock/releases)
 [![Total Downloads](https://img.shields.io/packagist/dt/tarantool/symfony-lock.svg?style=flat-square)](https://packagist.org/packages/tarantool/symfony-lock)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/tarantool-php/symfony-lock/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/tarantool-php/symfony-lock/?branch=master)
