@@ -132,12 +132,13 @@ class TarantoolStore implements PersistingStoreInterface
 
                 if ($tuple[1] == $this->getUniqueToken($key)) {
                     $this->checkNotExpired($key);
-                    return true;
+                    return;
                 }
 
                 if ($tuple[2] < microtime(true)) {
                     $this->delete($key, $tuple[1]);
-                    return $this->save($key);
+                    $this->save($key);
+                    return;
                 }
             }
 
